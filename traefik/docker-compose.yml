@@ -1,0 +1,27 @@
+services:
+  traefik:
+    image: traefik:v3.0
+    container_name: traefik
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"  # Opens the door for the dashboard
+    command:
+      - "--api.insecure=true"       # Enables dashboard on 8080 without a password
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--providers.file.filename=/etc/traefik/dynamic_conf.yml"
+      - "--log.level=DEBUG"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /opt/traefik/certs:/certs:ro
+      - /opt/traefik/dynamic_conf.yml:/etc/traefik/dynamic_conf.yml:ro
+    networks:
+      - traefik-public
+
+networks:
+  traefik-public:
+    external: true
